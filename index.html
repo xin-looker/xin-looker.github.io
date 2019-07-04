@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>More Powerful Drilling Tool</title>
+	<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+</head>
+<body>
+	<div class="container mt-2 mb-5 ml-auto mr-auto">
+		<div class="col-lg-12 col-md-12 col-sm-12">
+			
+			<div class="row mt-4">
+			<h1>More Powerful Drilling Tool</h1>
+			</div>
+
+			<div class="row mt-4">
+				<p class="font-italic mt-2">This tool is for demonstration purpose, Looker support is not responsibile for the maintainence</p>
+			</div>
+
+		<div class="url-form">
+			<form>
+				
+			<div class="form-group">
+				<div class="col-12">
+					<h5>Step 1: Base url for visualization configuration</h5>
+					<summary>Create the visualization you desire in the explore and paste the full url here</summary>
+					<label for="url-textform"></label>
+					<textarea class="form-control" id="url-textform" style="margin-bottom: 20px" rows="5">
+					</textarea>
+				</div>
+
+				<div class="col-8" id="hidden">
+					<h5>Step2 (Optional): Customize the fields and totals</h5>
+					<summary>Fields should be fully scoped like &quot;view_name.field_name&quot;</summary>
+					<br>
+
+					<label for="drill-fields">Drill Fields</label>
+	    			<input type="text" class="form-control" id="drill-fields" placeholder="Enter the drill fields, mutiple fields delimited by ," style="margin-bottom: 20px">
+
+					<label for="pivot-fields">Pivot Fields</label>
+	    			<input type="text" class="form-control" id="pivot-fields" placeholder="Enter fields that to be pivoted, mutiple fields delimited by ," style="margin-bottom: 20px">
+
+					<label for="filter">Filter</label>
+					<div class="form-row">
+						<div class="col">
+		    				<input type="text" class="form-control" id="filter" placeholder="Enter filter field" style="margin-right: 20px; margin-bottom: 20px">
+		    			</div>
+		    			<div class="col">
+		    				<input type="text" class="form-control" id="filter-value" placeholder="Enter the filter value, mutiple values delimited by ," style="margin-bottom: 20px">
+		    			</div>
+	    			</div>
+    			</div>
+
+    			<div class="form-check" style="margin-bottom: 20px">
+				  <input class="form-check-input" type="checkbox" value="&total=on" id="totals">
+				  <label class="form-check-label" for="totals">
+				    Switch on totals
+				  </label>
+				</div>
+
+				 <div class="form-check" style="margin-bottom: 20px">
+				  <input class="form-check-input" type="checkbox" value="&row_total=right" id="row-totals">
+				  <label class="form-check-label" for="row-totals">
+				    Switch on row total
+				  </label>
+				</div>
+
+				<button type="button" value="Submit" class="btn btn-primary" onclick="convertURL()">Convert</button>
+			</div>
+
+			</form>
+		</div>
+
+		<div class="url-result">
+			<div class="h4">The converted url</div>
+			<div class="row">
+			<div class="card mt-4 col-6">
+				<div class="card-body p-2 h-100" id="convertedURL">
+				</div>				
+			</div>
+			<div class="card mt-4 col-6">
+				<div class="card-body p-2 h-100" id="fullconvertedURL">
+				</div>				
+			</div>
+			</div>
+		</div>
+
+		</div>
+
+	</div>
+</body>
+
+<script type="text/javascript">
+	function convertURL() {
+		var urltext = document.getElementById('url-textform');
+		var decodedURL = decodeURIComponent(urltext.value);
+		var fullURL = decodeURIComponent(urltext.value).replace(/&/g, "<br>&").replace(/,/g, ",<br>");
+		var convertedURL = decodeURIComponent(urltext.value).replace(/"/g, "\\\"").replace(/&/g, "<br>&").replace(/,/g, ",<br>");
+		var visStart = convertedURL.indexOf('vis');
+		var visEnd = convertedURL.indexOf('<br>&filter_config');
+		var visText = convertedURL.substring(visStart, visEnd).replace("vis=", "");
+		var visLiquid = "{% assign vis= \'".concat(visText, "\' %}");
+
+		var dynamicFieldStart = convertedURL.indexOf('dynamic_fields');
+		var dynamicFieldEnd = convertedURL.indexOf('<br>&origin');
+		var dynamic_fields = convertedURL.substring(dynamicFieldStart, dynamicFieldEnd).replace("dynamic_fields=", "");
+		var dfLiquid = "{% assign dynamic_fields= \'".concat(dynamic_fields, "\' %}");
+
+		var drillFields = document.getElementById('drill-fields').value;
+
+		// var pivotFields;
+		// if(document.getElementById('pivot-fields').value!=null){
+		// 	pivotFields = "&pivots="+document.getElementById('pivot-fields').value;
+		// }
+		// else{
+		// 	pivotFields = '';
+		// }
+
+		var pivot;
+		var pivotStart=decodedURL.indexOf('&pivot');
+
+		if(pivotStart != -1){
+			var pivotEnd=decodedURL.indexOf('&', pivotStart+1);
+			pivot=decodedURL.substring(pivotStart,pivotEnd);
+		}else if(document.getElementById('pivot-fields').value!=null){
+			pivot = "&pivots="+document.getElementById('pivot-fields').value;
+		}else{
+		}
+
+
+
+		
+		// var filterField = "&f[".concat(document.getElementById('filter').value, "]=");
+		// var filterValue = document.getElementById('filter-value').value;
+
+		var filterStart = decodedURL.indexOf('&f[');
+		var filter;
+		if(filterStart != -1){
+			var filterNext = decodedURL.indexOf('&f[', filterStart+1);
+			if(filterNext === -1){
+				filterNext = filterStart;
+			}
+			var filterEnd = decodedURL.indexOf('&', filterNext+1);
+			filter = decodedURL.substring(filterStart, filterEnd);
+		}
+		else if(document.getElementById('filter').value != null && document.getElementById('filter-value').value != null){
+			filter = "&f[".concat(document.getElementById('filter').value, "]=", document.getElementById('filter-value').value);
+		}else{
+		}
+
+
+		
+
+
+		var totals = document.getElementById('totals');
+		var rowTotals = document.getElementById('row-totals');
+		var total_start = convertedURL.indexOf('total');
+		var row_total_start= convertedURL.indexOf('row_total');
+
+		if (totals.checked || total_start!== -1) {
+			// totals=document.getElementById('totals').value;
+			totals='&total=on';
+		}
+		else{
+			totals='';
+		}
+
+		if (rowTotals.checked || row_total_start!== -1) {
+			// rowTotals=document.getElementById('row-totals').value;
+			rowTotals='&row_total=right';
+		}
+		else{
+			rowTotals='';
+		}
+
+		if(dynamicFieldStart!== -1){
+			document.getElementById("convertedURL").innerHTML = visLiquid.concat("<br>", "<br>", dfLiquid, "<br>", "<br>", "{{link}}",pivotFields,filterField,filterValue,"&vis={{vis | encode_uri}}&dynamic_fields={{dynamic_fields | encode_uri}}", totals, rowTotals);
+		}
+		else{
+			document.getElementById("convertedURL").innerHTML = visLiquid.concat("<br>", "<br>", "{{link}}",pivot,filter,"&vis={{vis | encode_uri}}", totals, rowTotals);
+		}
+		
+		document.getElementById("fullconvertedURL").innerHTML = fullURL;
+	}
+</script>
+
+</html>
