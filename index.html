@@ -105,12 +105,12 @@
 <script type="text/javascript">
 	function convertURL() {
 		var urltext = document.getElementById('url-textform');
-		var decodedURL = decodeURIComponent(urltext.value);
-		var fullURL = decodeURIComponent(urltext.value).replace(/&/g, "<br>&").replace(/,/g, ",<br>");
-		var convertedURL = decodeURIComponent(urltext.value).replace(/"/g, "\\\"").replace(/&/g, "<br>&").replace(/,/g, ",<br>");
+		var decodedURL = decodeURIComponent(urltext.value.replace(/\+/g, " "));
+		var fullURL = decodedURL.replace(/&/g, "<br>&").replace(/,/g, ",<br>");
+		var convertedURL = decodedURL.replace(/"/g, "\\\"").replace(/&/g, "<br>&").replace(/,/g, ",<br>");
 		var visStart = convertedURL.indexOf('vis');
 		var visEnd = convertedURL.indexOf('<br>&filter_config');
-		var visText = convertedURL.substring(visStart, visEnd).replace("vis=", "");
+		var visText = convertedURL.substring(visStart, visEnd).replace("vis=", "").replace(/\+/g, " ");
 		var visLiquid = "{% assign vis= \'".concat(visText, "\' %}");
 
 		var dynamicFieldStart = convertedURL.indexOf('dynamic_fields');
@@ -188,7 +188,7 @@
 		}
 
 		if(dynamicFieldStart!== -1){
-			document.getElementById("convertedURL").innerHTML = visLiquid.concat("<br>", "<br>", dfLiquid, "<br>", "<br>", "{{link}}",pivotFields,filterField,filterValue,"&vis={{vis | encode_uri}}&dynamic_fields={{dynamic_fields | encode_uri}}", totals, rowTotals);
+			document.getElementById("convertedURL").innerHTML = visLiquid.concat("<br>", "<br>", dfLiquid, "<br>", "<br>", "{{link}}",pivot,filter,"&vis={{vis | encode_uri}}&dynamic_fields={{dynamic_fields | encode_uri}}", totals, rowTotals);
 		}
 		else{
 			document.getElementById("convertedURL").innerHTML = visLiquid.concat("<br>", "<br>", "{{link}}",pivot,filter,"&vis={{vis | encode_uri}}", totals, rowTotals);
