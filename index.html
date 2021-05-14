@@ -188,10 +188,10 @@
 		}
 
 		if(dynamicFieldStart!== -1){
-			document.getElementById("convertedURL").innerHTML = visLiquid.concat("<br>", "<br>", dfLiquid, "<br>", "<br>", "{{link}}",pivot,filter,"&vis={{vis | encode_uri}}&dynamic_fields={{dynamic_fields | encode_uri}}", totals, rowTotals);
+			document.getElementById("convertedURL").innerHTML = visLiquid.concat("<br>", "<br>", dfLiquid, "<br>", "<br>", "{{link}}",pivot,filter,"&vis_config={{vis | encode_uri}}&dynamic_fields={{dynamic_fields | encode_uri}}", totals, rowTotals);
 		}
 		else{
-			document.getElementById("convertedURL").innerHTML = visLiquid.concat("<br>", "<br>", "{{link}}",pivot,filter,"&vis={{vis | encode_uri}}", totals, rowTotals);
+			document.getElementById("convertedURL").innerHTML = visLiquid.concat("<br>", "<br>", "{{link}}",pivot,filter,"&vis_config={{vis | encode_uri}}", totals, rowTotals);
 		}
 		
 		document.getElementById("fullconvertedURL").innerHTML = fullURL;
